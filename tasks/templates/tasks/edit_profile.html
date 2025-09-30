@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #6c757d;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Edit Profile</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+       
+        <div class="mb-3 text-center">
+            <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}https://via.placeholder.com/120x120.png?text=👤{% endif %}" 
+                 alt="Profile Photo" class="profile-avatar mb-2">
+        </div>
+
+        
+        <div class="mb-3">
+            <label for="id_profile_image" class="form-label">Upload Profile Image</label>
+            <input type="file" name="profile_image" id="id_profile_image" class="form-control">
+        </div>
+
+        
+        <div class="mb-3">
+            <label for="id_github" class="form-label">GitHub URL</label>
+            <input type="url" name="github" id="id_github" value="{{ user.github }}" class="form-control" placeholder="https://github.com/username">
+        </div>
+
+       
+        <div class="mb-3">
+            <label for="id_linkedin" class="form-label">LinkedIn URL</label>
+            <input type="url" name="linkedin" id="id_linkedin" value="{{ user.linkedin }}" class="form-control" placeholder="https://linkedin.com/in/username">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

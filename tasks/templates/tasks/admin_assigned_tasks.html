@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Assigned Tasks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .status-pending { color: orange; font-weight: bold; }
+        .status-inprogress { color: blue; font-weight: bold; }
+        .status-completed { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Tasks Assigned by Me</h2>
+
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Assigned To</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Report</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.assigned_to.username }}</td>
+                <td>{{ task.due_date|date:"Y-m-d" }}</td>
+                <td>
+                    {% if task.status == 'pending' %}
+                        <span class="status-pending">Pending</span>
+                    {% elif task.status == 'inprogress' %}
+                        <span class="status-inprogress">In Progress</span>
+                    {% else %}
+                        <span class="status-completed">Completed</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.completed_date %}
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#reportModal{{ task.id }}">
+                            View Report
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="reportModal{{ task.id }}" tabindex="-1" aria-labelledby="reportModalLabel{{ task.id }}" aria-hidden="true">
+                          <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="reportModalLabel{{ task.id }}">Report for "{{ task.title }}"</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <p>{{ task.completion_report|default:"No report submitted yet." }}</p>
+                                <p><strong>Worked Hours:</strong> {{ task.worked_hours|default:"-" }}</p>
+                                <p><strong>Completed Date:</strong> {{ task.completed_date|date:"Y-m-d H:i" }}</p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.status != 'completed' %}
+                        <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
+                    {% else %}
+                        <a href="#" class="btn btn-sm btn-secondary disabled">Completed</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center">No tasks assigned by you yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

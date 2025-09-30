@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Task Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-stats { text-align: center; padding: 20px; }
+        .status-pending { color: rgb(32, 64, 89); font-weight: bold; }
+        .status-inprogress { color: blue; font-weight: bold; }
+        .status-completed { color: green; font-weight: bold; }
+        .overdue { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Task Management</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_assigned_tasks' %}">My Assigned Tasks</a></li>
+                  
+                   
+                </ul>
+                <ul class="navbar-nav">
+                   
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+
+{% include 'tasks/profile_section.html' %}
+
+        
+       
+
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card card-stats bg-info text-white">
+            <h5>All Users</h5>
+            <h2>{{ all_users_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stats bg-primary text-white">
+            <h5>Total Tasks</h5>
+            <h2>{{ total_tasks }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stats bg-success text-white">
+            <h5>Completed</h5>
+            <h2>{{ completed_tasks }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stats bg-warning text-dark">
+            <h5>Pending</h5>
+            <h2>{{ pending_tasks }}</h2>
+        </div>
+    </div>
+</div>
+
+
+       
+
+
+        <h4>Task Management</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Task Title</th>
+                    <th>Assigned To</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                   
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.assigned_to.username }}</td>
+                    <td>{{ task.due_date|default:"-" }}</td>
+                    <td>
+                        {% if task.status == 'pending' %}
+                            <span class="status-pending">Pending</span>
+                        {% elif task.status == 'inprogress' %}
+                            <span class="status-inprogress">In Progress</span>
+                        {% else %}
+                            <span class="status-completed">Completed</span>
+                        {% endif %}
+                    </td>
+                    
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No tasks found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+
+        
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        
+       <a href="{% url 'assign_task' %}" class="btn btn-success">
+    ➕ Assign New Task
+</a>
+
+
+       
+        <div class="btn-group ms-2">
+           
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="?status=pending">Pending</a></li>
+                <li><a class="dropdown-item" href="?status=inprogress">In Progress</a></li>
+                <li><a class="dropdown-item" href="?status=completed">Completed</a></li>
+                <li><a class="dropdown-item" href="?status=overdue">Overdue</a></li>
+                <li><a class="dropdown-item" href="{% url 'admin_home' %}">Clear Filter</a></li>
+            </ul>
+        </div>
+    </div>
+
+    
+</div>
+
+
+
+        
+        <h4 class="mt-5">Reports</h4>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Task Title</th>
+                    <th>User</th>
+                    <th>Worked Hours</th>
+                    <th>Report Preview</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in reports %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.assigned_to.username }}</td>
+                    <td>{{ task.worked_hours }}</td>
+                    <td>{{ task.completion_report|truncatewords:5 }}</td>
+                    <td><a href="{% url 'view_report' task.id %}" class="btn btn-sm btn-info">View Report</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No reports yet</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+       
+        
+
+    </div>
+
+   
+
+
+<div class="modal fade" id="assignTaskModal" tabindex="-1" aria-labelledby="assignTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="post" action="{% url 'assign_task' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="assignTaskModalLabel">Assign New Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Task Title</label>
+            <input type="text" name="title" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Assign To</label>
+            <select name="assigned_to" class="form-select" required>
+              {% for user in users_list %}
+              <option value="{{ user.id }}">{{ user.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Due Date</label>
+            <input type="date" name="due_date" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Assign Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>

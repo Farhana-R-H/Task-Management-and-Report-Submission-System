@@ -1,0 +1,25 @@
+
+<div style="border:1px solid #ddd; border-radius:10px; padding:25px; margin-bottom:20px; display:flex; align-items:center; background-color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}https://via.placeholder.com/60x60.png?text=👤{% endif %}" 
+         alt="User Photo" 
+         style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #6c757d; margin-right:12px;">
+
+    <div style="flex-grow:1;">
+        <h6 style="margin:0; font-size:1rem;">{{ user.username }}</h6>
+        <small style="display:block; color:#6c757d; font-size:0.8rem;">{{ user.email }}</small>
+        <small style="display:block; color:#6c757d; font-size:0.8rem;">{{ user.phone }}</small>
+        <div style="margin-top:4px;">
+            {% if user.github %}
+                <a href="{{ user.github }}" target="_blank" style="font-size:0.75rem; color:#0d6efd; margin-right:8px; text-decoration:none;">GitHub</a>
+            {% endif %}
+            {% if user.linkedin %}
+                <a href="{{ user.linkedin }}" target="_blank" style="font-size:0.75rem; color:#0d6efd; text-decoration:none;">LinkedIn</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="{% url 'edit_profile' %}" 
+       style="padding:4px 8px; font-size:0.8rem; border:1px solid #0d6efd; border-radius:4px; color:#0d6efd; text-decoration:none; margin-left:12px;">
+       Edit
+    </a>
+</div>
