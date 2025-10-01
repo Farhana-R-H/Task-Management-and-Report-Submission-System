@@ -46,6 +46,50 @@ This is a **Task Management and Report Submission Web Application** consisting o
 * Can access system-wide analytics and insights.
 
 ---
+* REST API Endpoints
+
+* Authentication
+    * JWT Authentication is used for secure access.
+    * Users can login with username and password.
+    * Successful login returns a JWT token for subsequent API requests.
+
+* Task APIs (User-Specific)
+    * GET /api/tasks/
+        * Fetch all tasks assigned to the logged-in user.
+    * PUT /api/tasks/{id}/
+        * Update a task’s status.
+        * When marking as Completed, must include:
+            * Completion Report (text)
+            * Worked Hours (number)
+    * GET /api/tasks/{id}/report/
+        * View Completion Report and Worked Hours.
+        * Accessible only for Completed tasks.
+        * Admins & SuperAdmins can access all reports.
+
+* Example JSON payload for completing a task:
+    {
+        "status": "completed",
+        "completion_report": "Fixed bugs, updated documentation.",
+        "worked_hours": 4
+    }
+
+* Roles & Permissions
+    * SuperAdmin
+        * View/manage all users and admins.
+        * Assign tasks to users.
+        * View all task reports.
+    * Admin
+        * Assign tasks to their users.
+        * View/manage tasks and reports within their team.
+    * User
+        * View assigned tasks.
+        * Update task status.
+        * Submit completion report and worked hours.
+
+* Notes
+    * Only logged-in users can access their respective API endpoints.
+    * Admins and SuperAdmins can view all reports; users can only see their own.
+    * The system uses SQLite database.
 
 ## Additional Features
 * Profile section on every page:
