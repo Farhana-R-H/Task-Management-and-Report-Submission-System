@@ -9,6 +9,11 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from .models import Task
+from .serializers import TaskSerializer
 
 User = get_user_model()
 
@@ -453,3 +458,47 @@ def delete_user_view(request):
         user.delete()
         messages.success(request, f"User '{user.username}' deleted successfully.")
     return redirect("all_users")
+
+
+
+class UserTasksView(generics.ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(assigned_to=self.request.user)
+
+# Update a task status + submit report
+class TaskUpdateView(generics.UpdateAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(assigned_to=self.request.user)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        if instance.status == "completed":
+            if not instance.completion_report or not instance.worked_hours:
+                raise serializers.ValidationError("Completion Report and Worked Hours required when marking task as completed.")
+        return instance
+
+# Admin + SuperAdmin: View a report
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def task_report(request, pk):
+    task = Task.objects.get(pk=pk)
+    user = request.user
+
+    # Allow only admins or superadmins
+    if user.role in ["admin", "superadmin"]:
+        if task.status == "completed":
+            return Response({
+                "task": task.title,
+                "completion_report": task.completion_report,
+                "worked_hours": task.worked_hours,
+                "user": task.assigned_to.username,
+                "status": task.status
+            })
+        return Response({"error": "Task not completed yet."}, status=400)
+    return Response({"error": "Permission denied."}, status=403)

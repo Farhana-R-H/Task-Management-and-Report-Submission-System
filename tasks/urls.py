@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .views import UserTasksView, TaskUpdateView, task_report
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
      path('', views.login_view, name='login'),
@@ -23,8 +25,12 @@ urlpatterns = [
     path('superadmin/tasks/', views.superadmin_task_management, name='superadmin_task_management'),
     path('admin-home/my-assigned-tasks/', views.admin_assigned_tasks, name='admin_assigned_tasks'),
     path('superadmin/all-users/', views.all_users_view, name='all_users'),
-    path('superadmin/delete-user/', views.delete_user_view, name='delete_user')
-
+    path('superadmin/delete-user/', views.delete_user_view, name='delete_user'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/tasks/', UserTasksView.as_view(), name='user-tasks'),
+    path('api/tasks/<int:pk>/', TaskUpdateView.as_view(), name='task-update'),
+    path('api/tasks/<int:pk>/report/', task_report, name='task-report'),
 
 
 
